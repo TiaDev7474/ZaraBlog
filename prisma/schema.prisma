@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int    @id
+  firstname String @db.VarChar(250)
+  lastname  String @db.VarChar(250)
+  username  String @db.VarChar(125)
+  email     String @unique @db.VarChar(250)
+  role      Role   @default(User)
+  avatar    String
+  posts     Post[]
+}
+
+model Post {
+  id          Int                 @id
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  published   Boolean             @default(false)
+  title       String
+  content     String
+  cover_photo String
+  author      User                @relation(fields: [authorId], references: [id])
+  authorId    Int
+  tag         TagsOnPosts[]
+  category    CategoriesOnPosts[]
+  reaction    ReactionsOnPosts[]
+}
+
+model Category {
+  id   Int                 @id @default(autoincrement())
+  name String
+  post CategoriesOnPosts[]
+}
+
+model Tag {
+  id          Int           @id @default(autoincrement())
+  designation String
+  post        TagsOnPosts[]
+}
+
+model Reaction {
+  id   Int                @id
+  type ReactionEnum
+  post ReactionsOnPosts[]
+}
+
+model ReactionsOnPosts {
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     Int
+  reaction   Reaction @relation(fields: [reactionId], references: [id])
+  reactionId Int
+
+  @@id([postId, reactionId])
+}
+
+model TagsOnPosts {
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+  tag    Tag  @relation(fields: [tagId], references: [id])
+  tagId  Int
+
+  @@id([postId, tagId])
+}
+
+model CategoriesOnPosts {
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@id([postId, categoryId])
+}
+
+enum Role {
+  User
+  ADMIN
+  MODERATOR
+}
+
+enum ReactionEnum {
+  like
+  love
+}
