@@ -2,12 +2,14 @@ version: '3.8'
 services:
   zara-db: 
     image: postgres:latest
+    container_name: postgres
+    hostname: postgres
     ports:
-      - 5434:5432
+       - "5434:5433"
     environment:
        POSTGRES_USER: postgres
        POSTGRES_PASSWORD: 123
-       POSTGRES_DB: zara-blog
+       POSTGRES_DB: zara
     networks:
       - zara
 networks:

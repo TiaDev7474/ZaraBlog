@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,14 +8,27 @@ datasource db {
 }
 
 model User {
-  id        Int    @id
-  firstname String @db.VarChar(250)
-  lastname  String @db.VarChar(250)
-  username  String @db.VarChar(125)
-  email     String @unique @db.VarChar(250)
-  role      Role   @default(User)
-  avatar    String
+  id        Int      @id
+  firstname String   @db.VarChar(250)
+  lastname  String   @db.VarChar(250)
+  email     String   @unique @db.VarChar(250)
+  password  String
+  birthdate DateTime
+  bio       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role     @default(User)
+  avatar    Avatar[]
   posts     Post[]
+}
+
+model Avatar {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  filename  String   @db.VarChar(150)
+  path      String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   Int
 }
 
 model Post {
@@ -28,12 +38,12 @@ model Post {
   published   Boolean             @default(false)
   title       String
   content     String
-  cover_photo String
-  author      User                @relation(fields: [authorId], references: [id])
+  cover_photo String?
   authorId    Int
-  tag         TagsOnPosts[]
   category    CategoriesOnPosts[]
+  author      User                @relation(fields: [authorId], references: [id])
   reaction    ReactionsOnPosts[]
+  tag         TagsOnPosts[]
 }
 
 model Category {
@@ -55,28 +65,28 @@ model Reaction {
 }
 
 model ReactionsOnPosts {
-  post       Post     @relation(fields: [postId], references: [id])
   postId     Int
-  reaction   Reaction @relation(fields: [reactionId], references: [id])
   reactionId Int
+  post       Post     @relation(fields: [postId], references: [id])
+  reaction   Reaction @relation(fields: [reactionId], references: [id])
 
   @@id([postId, reactionId])
 }
 
 model TagsOnPosts {
-  post   Post @relation(fields: [postId], references: [id])
   postId Int
-  tag    Tag  @relation(fields: [tagId], references: [id])
   tagId  Int
+  post   Post @relation(fields: [postId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
 
   @@id([postId, tagId])
 }
 
 model CategoriesOnPosts {
-  post       Post     @relation(fields: [postId], references: [id])
   postId     Int
-  category   Category @relation(fields: [categoryId], references: [id])
   categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id])
 
   @@id([postId, categoryId])
 }
