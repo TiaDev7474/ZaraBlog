@@ -8,18 +8,20 @@ datasource db {
 }
 
 model User {
-  id        Int      @id
-  firstname String   @db.VarChar(250)
-  lastname  String   @db.VarChar(250)
-  email     String   @unique @db.VarChar(250)
+  id        String    @id
+  firstname String?   @db.VarChar(250)
+  lastname  String?   @db.VarChar(250)
+  email     String    @unique @db.VarChar(250)
   password  String
-  birthdate DateTime
-  bio       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role      Role     @default(User)
+  birthdate DateTime?
+  bio       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  role      Role      @default(User)
   avatar    Avatar[]
   posts     Post[]
+
+  @@map("users")
 }
 
 model Avatar {
@@ -28,7 +30,9 @@ model Avatar {
   filename  String   @db.VarChar(150)
   path      String
   owner     User     @relation(fields: [ownerId], references: [id])
-  ownerId   Int
+  ownerId   String
+
+  @@map("avatars")
 }
 
 model Post {
@@ -39,17 +43,21 @@ model Post {
   title       String
   content     String
   cover_photo String?
-  authorId    Int
+  authorId    String
   category    CategoriesOnPosts[]
   author      User                @relation(fields: [authorId], references: [id])
   reaction    ReactionsOnPosts[]
   tag         TagsOnPosts[]
+
+  @@map("posts")
 }
 
 model Category {
   id   Int                 @id @default(autoincrement())
   name String
   post CategoriesOnPosts[]
+
+  @@map("categories")
 }
 
 model Tag {
