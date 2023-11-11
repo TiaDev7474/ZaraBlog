@@ -41,13 +41,14 @@ export class AuthService {
           email: signInDto.email,
         },
       });
+
       if (!foundUser) {
         throw new NotFoundException('User Not found');
       }
-
+      const payload = { sub: foundUser.id, email: foundUser.email };
       return {
-        access_token: await this.signInToken(foundUser.id, foundUser.email),
-      };
+        access_token : await this.jwtService.signAsync(payload)
+      }
     } catch (e) {
       //Todo: Handle error exception
       return e;

@@ -41,3 +41,10 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? Token : 'undefined';
   }
 }
+
+export class RolesGuard implements  CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean>{
+    return true
+  }
+
+}
