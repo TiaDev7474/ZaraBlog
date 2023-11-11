@@ -1,11 +1,22 @@
 version: '3.8'
 services:
+  nest-app:
+    build:
+      context: .
+    ports:
+      - '8080:8080'
+    depends_on:
+      - zara-db
+    networks:
+      - zara
   zara-db: 
     image: postgres:latest
     container_name: postgres
     hostname: postgres
+    volumes:
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
-       - "5434:5433"
+       - "5432:5432"
     environment:
        POSTGRES_USER: postgres
        POSTGRES_PASSWORD: 123

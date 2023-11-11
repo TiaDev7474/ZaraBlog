@@ -1,41 +1,8 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('User', 'ADMIN', 'MODERATOR');
 
-  - You are about to drop the `Avatar` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Category` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Post` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Avatar" DROP CONSTRAINT "Avatar_ownerId_fkey";
-
--- DropForeignKey
-ALTER TABLE "CategoriesOnPosts" DROP CONSTRAINT "CategoriesOnPosts_categoryId_fkey";
-
--- DropForeignKey
-ALTER TABLE "CategoriesOnPosts" DROP CONSTRAINT "CategoriesOnPosts_postId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Post" DROP CONSTRAINT "Post_authorId_fkey";
-
--- DropForeignKey
-ALTER TABLE "ReactionsOnPosts" DROP CONSTRAINT "ReactionsOnPosts_postId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TagsOnPosts" DROP CONSTRAINT "TagsOnPosts_postId_fkey";
-
--- DropTable
-DROP TABLE "Avatar";
-
--- DropTable
-DROP TABLE "Category";
-
--- DropTable
-DROP TABLE "Post";
-
--- DropTable
-DROP TABLE "User";
+-- CreateEnum
+CREATE TYPE "ReactionEnum" AS ENUM ('like', 'love');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -86,6 +53,46 @@ CREATE TABLE "categories" (
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Tag" (
+    "id" SERIAL NOT NULL,
+    "designation" TEXT NOT NULL,
+
+    CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Reaction" (
+    "id" INTEGER NOT NULL,
+    "type" "ReactionEnum" NOT NULL,
+
+    CONSTRAINT "Reaction_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ReactionsOnPosts" (
+    "postId" INTEGER NOT NULL,
+    "reactionId" INTEGER NOT NULL,
+
+    CONSTRAINT "ReactionsOnPosts_pkey" PRIMARY KEY ("postId","reactionId")
+);
+
+-- CreateTable
+CREATE TABLE "TagsOnPosts" (
+    "postId" INTEGER NOT NULL,
+    "tagId" INTEGER NOT NULL,
+
+    CONSTRAINT "TagsOnPosts_pkey" PRIMARY KEY ("postId","tagId")
+);
+
+-- CreateTable
+CREATE TABLE "CategoriesOnPosts" (
+    "postId" INTEGER NOT NULL,
+    "categoryId" INTEGER NOT NULL,
+
+    CONSTRAINT "CategoriesOnPosts_pkey" PRIMARY KEY ("postId","categoryId")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
@@ -99,7 +106,13 @@ ALTER TABLE "posts" ADD CONSTRAINT "posts_authorId_fkey" FOREIGN KEY ("authorId"
 ALTER TABLE "ReactionsOnPosts" ADD CONSTRAINT "ReactionsOnPosts_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "ReactionsOnPosts" ADD CONSTRAINT "ReactionsOnPosts_reactionId_fkey" FOREIGN KEY ("reactionId") REFERENCES "Reaction"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "TagsOnPosts" ADD CONSTRAINT "TagsOnPosts_postId_fkey" FOREIGN KEY ("postId") REFERENCES "posts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TagsOnPosts" ADD CONSTRAINT "TagsOnPosts_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "Tag"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CategoriesOnPosts" ADD CONSTRAINT "CategoriesOnPosts_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
