@@ -3,13 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AuthDto } from './dto';
+import { CreateUserDto, LoginDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
-import * as argon from 'argon2';
+import * as argon2 from 'argon2';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail/mail.service';
+import { FORBIDDEN_MESSAGE } from '@nestjs/core/guards';
+
 
 @Injectable()
 export class AuthService {
@@ -18,26 +20,32 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
   ) {}
-  async signup(userCreateDto: AuthDto) {
+  async signup(userCreateDto: CreateUserDto) {
+    const { password, email, ...rest } = userCreateDto;
+    console.log(password, email);
     try {
-      const hashedPassword = await argon.hash(userCreateDto.password);
+      const hashedPassword = await argon2.hash(password);
       const createdUser = await this.prisma.user.create({
         data: {
           id: uuidv4(),
-          email: userCreateDto.email,
+          email: email,
           password: hashedPassword,
+          ...rest,
         },
       });
-      return this.mailService.sendUserConfirmation(createdUser);
+      await this.mailService.sendUserConfirmation(createdUser);
+      console.log(createdUser);
+      return createdUser;
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code == 'P2002') {
           throw new ForbiddenException('Credentials already taken');
         }
       }
+      console.log(e);
     }
   }
-  async signIn(signInDto: AuthDto) {
+  async signIn(signInDto: LoginDto) {
     try {
       const foundUser = await this.prisma.user.findUnique({
         where: {
@@ -46,7 +54,14 @@ export class AuthService {
       });
 
       if (!foundUser) {
-        throw new NotFoundException('User Not found');
+        return new NotFoundException('User Not found');
+      }
+      const isPasswordValid = await this.comparePassword(
+        signInDto.password,
+        foundUser.password,
+      );
+      if (!isPasswordValid) {
+        return new ForbiddenException(FORBIDDEN_MESSAGE);
       }
       const payload = { sub: foundUser.id, email: foundUser.email };
       return {
@@ -54,11 +69,10 @@ export class AuthService {
       };
     } catch (e) {
       //Todo: Handle error exception
-      return e;
+      console.log(e.message);
     }
   }
-  signInToken(userId: string, email: string) {
-    const payload = { sub: userId, email: email };
-    return this.jwtService.signAsync(payload);
+  comparePassword(password: string, hashedPassword: string): Promise<boolean> {
+    return argon2.verify(hashedPassword, password);
   }
 }
