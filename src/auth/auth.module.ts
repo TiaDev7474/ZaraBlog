@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
-import {MailModule} from "../mail/mail.module";
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   controllers: [AuthController],
@@ -10,7 +10,7 @@ import {MailModule} from "../mail/mail.module";
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: {expiresIn: '60s'},
+      signOptions: { expiresIn: '60s' },
     }),
   ],
   providers: [AuthService],

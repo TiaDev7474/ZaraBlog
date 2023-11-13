@@ -1,11 +1,15 @@
-import {ForbiddenException, Injectable, NotFoundException,} from '@nestjs/common';
-import {AuthDto} from './dto';
-import {PrismaService} from '../prisma/prisma.service';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { AuthDto } from './dto';
+import { PrismaService } from '../prisma/prisma.service';
 import * as argon from 'argon2';
-import {v4 as uuidv4} from 'uuid';
-import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
-import {JwtService} from '@nestjs/jwt';
-import {MailService} from "../mail/mail.service";
+import { v4 as uuidv4 } from 'uuid';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { JwtService } from '@nestjs/jwt';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -24,8 +28,7 @@ export class AuthService {
           password: hashedPassword,
         },
       });
-      return  this.mailService.sendUserConfirmation(createdUser);
-
+      return this.mailService.sendUserConfirmation(createdUser);
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code == 'P2002') {
@@ -47,8 +50,8 @@ export class AuthService {
       }
       const payload = { sub: foundUser.id, email: foundUser.email };
       return {
-        access_token : await this.jwtService.signAsync(payload)
-      }
+        access_token: await this.jwtService.signAsync(payload),
+      };
     } catch (e) {
       //Todo: Handle error exception
       return e;
