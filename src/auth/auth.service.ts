@@ -12,7 +12,6 @@ import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail/mail.service';
 import { FORBIDDEN_MESSAGE } from '@nestjs/core/guards';
 
-
 @Injectable()
 export class AuthService {
   constructor(

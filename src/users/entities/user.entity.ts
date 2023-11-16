@@ -1,6 +1,6 @@
 import { Role } from '../../lib/enums/role';
 
-export class IUser {
+export class User {
   id: string;
   firstname?: string;
   lastname?: string;
