@@ -1,27 +1,16 @@
 version: '3.8'
 services:
-  nest-app:
-    build:
-      context: .
-    ports:
-      - '8080:8080'
-    depends_on:
-      - zara-db
-    networks:
-      - zara
-  zara-db: 
-    image: postgres:latest
-    container_name: postgres
-    hostname: postgres
-    volumes:
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf
-    ports:
-       - "5432:5432"
+  minio:
+    image: 'minio/minio:latest'
     environment:
-       POSTGRES_USER: postgres
-       POSTGRES_PASSWORD: 123
-       POSTGRES_DB: zara
-    networks:
-      - zara
-networks:
-  zara:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: password
+    ports:
+      - '9000:9000'
+      - '8900:8900'
+    volumes:
+      - 'minio:/data/minio'
+    command: 'minio server /data/minio --console-address ":8900"'
+volumes:
+  minio:
+    driver: local

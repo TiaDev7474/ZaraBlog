@@ -13,6 +13,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './lib/gaurds/auth.gaurd';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { UsersModule } from './users/users.module';
+import { StorageModule } from './storage/storage.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TaskSchedule } from './schedule/task.schedule';
 
 @Module({
   providers: [
@@ -20,16 +23,19 @@ import { UsersModule } from './users/users.module';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    TaskSchedule,
   ],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     PostModule,
     PrismaModule,
     MailModule,
     UsersModule,
+    StorageModule,
   ],
 })
 export class AppModule implements NestModule {

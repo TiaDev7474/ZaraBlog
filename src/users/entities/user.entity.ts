@@ -4,6 +4,6 @@ export class User {
   id: string;
   firstname?: string;
   lastname?: string;
-  role: Role[];
+  role: Role;
   avatar?: [string];
 }
