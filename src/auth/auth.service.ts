@@ -21,7 +21,6 @@ export class AuthService {
   ) {}
   async signup(userCreateDto: CreateUserDto) {
     const { password, email, ...rest } = userCreateDto;
-    console.log(password, email);
     try {
       const hashedPassword = await argon2.hash(password);
       const createdUser = await this.prisma.user.create({
@@ -46,11 +45,7 @@ export class AuthService {
   }
   async signIn(signInDto: LoginDto) {
     try {
-      const foundUser = await this.prisma.user.findUnique({
-        where: {
-          email: signInDto.email,
-        },
-      });
+      const foundUser = await this.findUserByEmail(signInDto.email);
 
       if (!foundUser) {
         return new NotFoundException('User Not found');
@@ -73,5 +68,12 @@ export class AuthService {
   }
   comparePassword(password: string, hashedPassword: string): Promise<boolean> {
     return argon2.verify(hashedPassword, password);
+  }
+  findUserByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
   }
 }

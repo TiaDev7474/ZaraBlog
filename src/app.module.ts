@@ -16,6 +16,7 @@ import { UsersModule } from './users/users.module';
 import { StorageModule } from './storage/storage.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskSchedule } from './schedule/task.schedule';
+import { OauthModule } from './oauth/oauth.module';
 
 @Module({
   providers: [
@@ -36,6 +37,7 @@ import { TaskSchedule } from './schedule/task.schedule';
     MailModule,
     UsersModule,
     StorageModule,
+    OauthModule,
   ],
 })
 export class AppModule implements NestModule {

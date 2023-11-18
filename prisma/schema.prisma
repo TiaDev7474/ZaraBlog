@@ -15,7 +15,7 @@ model User {
   firstname String?   @db.VarChar(250)
   lastname  String?   @db.VarChar(250)
   email     String    @unique @db.VarChar(250)
-  password  String
+  password  String?
   birthdate DateTime?
   bio       String?
   createdAt DateTime  @default(now())
@@ -23,6 +23,9 @@ model User {
   role      Role      @default(USER)
   avatar    Avatar[]
   posts     Post[]
+
+  providerId   String? @unique
+  providerName String?
 
   @@map("users")
 }
