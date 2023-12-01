@@ -58,7 +58,100 @@ $ yarn run test:e2e
 $ yarn run test:cov
 ```
 
+
+
+# Project Environment Configuration
+
+This document outlines the environment variables required for configuring your NestJS project. Ensure that you set these variables appropriately for your development, staging, and production environments.
+
+## Database Configuration
+
+- **DATABASE_URL**
+    - PostgreSQL database connection URL.
+    - Example: `postgresql://postgres:user@host/dbname?schema=public`
+
+## Mailer Configuration
+
+- **MAILER_HOST**
+    - SMTP server host for sending emails.
+    - Example: `smtp.gmail.com`
+
+- **MAILER_USER**
+    - Email address used for authentication with the SMTP server.
+    - Example: `example@gmail.com`
+
+- **MAILER_PASSWORD**
+    - Password associated with the email address for SMTP authentication.
+
+- **MAILER_PORT**
+    - Port number for the SMTP server.
+
+- **MAILER_TRANSPORT**
+    - SMTP transport configuration.
+    - Example: `smtps://${MAIL_USER}:${MAILER_PASSWORD}@${MAILER_HOST}:${MALER_PORT}`
+
+## JWT Configuration
+
+- **JWT_SECRET**
+    - Secret key used for JSON Web Token (JWT) generation and validation.
+  
+
+## AWS Configuration
+
+- **AWS_S3_ACCESS_KEY**
+    - Access key for AWS S3.
+    - 
+- **AWS_S3_SECRET_KEY**
+    - Secret key for AWS S3.
+
+- **MINIO_S3_URL**
+    - URL for the MINIO S3 service.
+
+
+- **AWS_S3_REGION**
+    - AWS S3 region.
+    - Example: `"eu-east-1"`
+
+## OAuth Google Configuration
+
+- **GOOGLE_CLIENT_ID**
+    - Google OAuth client ID.
+
+- **GOOGLE_PROJECT_ID**
+    - Google project ID.
+
+- **GOOGLE_CLIENT_SECRET**
+    - Google OAuth client secret.
+
+- **GOOGLE_CALLBACK_URL**
+    - Callback URL for Google OAuth.
+    - Example: `http://localhost:8080/api/oauth/google/callback`
+
+## OAuth GitHub Configuration
+
+- **GITHUB_CLIENT_ID**
+    - GitHub OAuth client ID.
+
+- **GITHUB_PROJECT_ID**
+    - GitHub project ID.
+    - Example: `zara-blog`
+
+- **GITHUB_CLIENT_SECRET**
+    - GitHub OAuth client secret.
+
+- **GITHUB_CALLBACK_URL**
+    - Callback URL for GitHub OAuth.
+    - Example: `http://localhost:8080/api/oauth/github/callback`
+
+## Prisma Database 
+# initialize prisma 
+$ npx prisma init
+# generate prisma client
+$ npx prisma generate
+
+# create migration
 ## Support
+
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
