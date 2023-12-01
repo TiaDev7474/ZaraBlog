@@ -11,6 +11,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ResponseInterceptor());
+  app.setGlobalPrefix('api/v1');
   await app.listen(8080);
 }
 bootstrap();

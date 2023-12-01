@@ -24,7 +24,6 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       lastname: `${name?.middleName ?? ''} ${name?.familyName ?? ''}`,
       avatar: photos[0].value,
     };
-    console.log(user);
     return user.email || user.providerId ? user : null;
   }
 }

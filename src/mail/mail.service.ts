@@ -4,7 +4,6 @@ import { MailerService } from '@nestjs-modules/mailer';
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
-
   async sendUserConfirmation(user: any) {
     const url = 'example.com';
     console.log('sending email address', user.email);

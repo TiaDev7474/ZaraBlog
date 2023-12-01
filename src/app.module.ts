@@ -5,7 +5,6 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
-import { PostModule } from './post/post.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './mail/mail.module';
@@ -17,6 +16,8 @@ import { StorageModule } from './storage/storage.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskSchedule } from './schedule/task.schedule';
 import { OauthModule } from './oauth/oauth.module';
+import { EventsModule } from './events/events.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   providers: [
@@ -32,12 +33,13 @@ import { OauthModule } from './oauth/oauth.module';
     }),
     ScheduleModule.forRoot(),
     AuthModule,
-    PostModule,
     PrismaModule,
     MailModule,
     UsersModule,
     StorageModule,
     OauthModule,
+    EventsModule,
+    PostsModule,
   ],
 })
 export class AppModule implements NestModule {

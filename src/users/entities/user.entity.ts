@@ -1,6 +1,6 @@
 import { Role } from '../../lib/enums/role';
 
-export class User {
+export class UserEntity {
   id: string;
   firstname?: string;
   lastname?: string;

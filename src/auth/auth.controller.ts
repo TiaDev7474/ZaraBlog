@@ -6,7 +6,7 @@ import { SkipAuth } from '../lib/decorator/auth.decorator';
 export class AuthController {
   constructor(private authService: AuthService) {}
   @SkipAuth()
-  @Post('signup')
+    @Post('signup')
   signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto);
   }

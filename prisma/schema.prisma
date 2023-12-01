@@ -42,10 +42,10 @@ model Avatar {
 }
 
 model Post {
-  id          Int                 @id
+  id          String              @id
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
-  published   Boolean             @default(false)
+  read_time   Int
   title       String
   content     String
   cover_photo String?
@@ -79,7 +79,7 @@ model Reaction {
 }
 
 model ReactionsOnPosts {
-  postId     Int
+  postId     String
   reactionId Int
   post       Post     @relation(fields: [postId], references: [id])
   reaction   Reaction @relation(fields: [reactionId], references: [id])
@@ -88,16 +88,16 @@ model ReactionsOnPosts {
 }
 
 model TagsOnPosts {
-  postId Int
+  postId String
   tagId  Int
-  post   Post @relation(fields: [postId], references: [id])
-  tag    Tag  @relation(fields: [tagId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id])
+  tag    Tag    @relation(fields: [tagId], references: [id])
 
   @@id([postId, tagId])
 }
 
 model CategoriesOnPosts {
-  postId     Int
+  postId     String
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
   post       Post     @relation(fields: [postId], references: [id])
