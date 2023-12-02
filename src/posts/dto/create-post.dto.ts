@@ -1,18 +1,16 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
   title: string;
   @IsString()
+  @IsNotEmpty()
   content: string;
-
-  @IsNumber()
+  @IsNotEmpty()
   read_time: string;
-
-  @IsArray()
-  category: string[];
-
   @IsArray()
   tags: string[];
+  @IsArray()
+  category: string[];
 }

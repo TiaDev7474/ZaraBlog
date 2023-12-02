@@ -4,7 +4,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { StorageService } from '../storage/storage.service';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
-
+import * as process from 'process';
 
 @Injectable()
 export class PostsService {
@@ -31,17 +31,33 @@ export class PostsService {
           return this.createCategoriesOnPosts(newPost.id, Number(categoryId));
         }),
       ]);
-
+      const bucketName = 'zarablogbucket';
       if (file) {
         filename = Date.now() + file.originalname;
-        const bucketName = 'zarablogbucket';
         await this.storageService.upload(filename, file.buffer, bucketName);
       }
+
       return this.prismaService.post.create({
         data: {
-          authorId: user.sub,
           ...newPost,
-          cover_photo: filename,
+          author: {
+            connect: {
+              id: user.sub,
+            },
+          },
+          cover_photo: ` ${process.env.MINIO_S3_URL}/${bucketName}/${filename} `,
+        },
+        include: {
+          category: true,
+          tag: true,
+          author: {
+            select: {
+              firstname: true,
+              lastname: true,
+              email: true,
+              avatar: true,
+            },
+          },
         },
       });
     } catch (e) {
@@ -49,8 +65,24 @@ export class PostsService {
     }
   }
 
-  findAll() {
-    return this.prismaService.post.findMany();
+  findAll(skip?: number, take?: number) {
+    return this.prismaService.post.findMany({
+      skip,
+      take,
+      include: {
+        category: {
+          include: {
+            category: true,
+          },
+        },
+        tag: {
+          include: {
+            tag: true,
+          },
+        },
+        reaction: true,
+      },
+    });
   }
 
   findOne(id: number) {
@@ -58,7 +90,7 @@ export class PostsService {
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+    return `This action updates a #${id} ${updatePostDto.content} post`;
   }
 
   remove(id: number) {
@@ -72,5 +104,43 @@ export class PostsService {
         postId: post_id,
       },
     });
+  }
+
+  async reactOnPost(reaction_id: number, post_id: string, user_id: string) {
+    try {
+      return this.prismaService.post.update({
+        data: {
+          reaction: {
+            create: {
+              user: {
+                connect: {
+                  id: user_id,
+                },
+              },
+              reaction: {
+                connectOrCreate: {
+                  where: { id: reaction_id },
+                  create: {
+                    id: reaction_id,
+                    type: 'like',
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          id: post_id,
+        },
+        include: {
+          reaction: true,
+          category: true,
+          tag: true,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+    }
+
   }
 }

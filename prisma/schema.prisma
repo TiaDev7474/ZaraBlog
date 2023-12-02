@@ -24,8 +24,9 @@ model User {
   avatar    Avatar[]
   posts     Post[]
 
-  providerId   String? @unique
-  providerName String?
+  providerId       String?            @unique
+  providerName     String?
+  ReactionsOnPosts ReactionsOnPosts[]
 
   @@map("users")
 }
@@ -83,8 +84,10 @@ model ReactionsOnPosts {
   reactionId Int
   post       Post     @relation(fields: [postId], references: [id])
   reaction   Reaction @relation(fields: [reactionId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
 
-  @@id([postId, reactionId])
+  @@id([postId, reactionId, userId])
 }
 
 model TagsOnPosts {
