@@ -8,9 +8,9 @@ export class CreatePostDto {
   @IsNotEmpty()
   content: string;
   @IsNotEmpty()
-  read_time: string;
+  read_time: number;
   @IsArray()
-  tags: string[];
+  tags: number[];
   @IsArray()
-  category: string[];
+  category: number[];
 }

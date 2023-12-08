@@ -21,13 +21,13 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('banner_image'))
   create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() banner_image: Express.Multer.File,
     @Body() createPostDto: CreatePostDto,
     @GetUser() user: any,
   ) {
-    return this.postsService.create(file, createPostDto, user);
+    return this.postsService.create(banner_image, createPostDto, user);
   }
   @Get()
   findAll(@Query('skip') skip: number, @Query('take') take: number) {
@@ -38,8 +38,21 @@ export class PostsController {
     return this.postsService.findOne(+id);
   }
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  @UseInterceptors(FileInterceptor('banner_image'))
+  update(
+    @UploadedFile() banner_image: Express.Multer.File,
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    return this.postsService.update(id, updatePostDto);
+  }
+  @Patch(':id/cover-photo')
+  @UseInterceptors(FileInterceptor('banner_image'))
+  updatePostCoverPhoto(
+    @UploadedFile() banner_image: Express.Multer.File,
+    @Param('id') id: string,
+  ) {
+    return this.postsService.updatePostBannerUrl(banner_image, id);
   }
   @Patch(':id/react')
   reactOnPost(

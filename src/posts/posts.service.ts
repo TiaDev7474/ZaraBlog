@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { StorageService } from '../storage/storage.service';
@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import * as process from 'process';
 
+
+const bucketName = 'zarablogbucket';
 @Injectable()
 export class PostsService {
   constructor(
@@ -31,7 +33,7 @@ export class PostsService {
           return this.createCategoriesOnPosts(newPost.id, Number(categoryId));
         }),
       ]);
-      const bucketName = 'zarablogbucket';
+
       if (file) {
         filename = Date.now() + file.originalname;
         await this.storageService.upload(filename, file.buffer, bucketName);
@@ -89,9 +91,40 @@ export class PostsService {
     return `This action returns a #${id} post`;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} ${updatePostDto.content} post`;
+  async update(id: string, updatePostDto: UpdatePostDto) {
+    const updatedData = new UpdatePostDto(updatePostDto);
+    try {
+      await this.prismaService.post.update({
+        data: {
+          ...updatedData,
+        },
+        where: {
+          id,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
+
+  async updatePostBannerUrl(file: Express.Multer.File, postId: string) {
+    try {
+      //Todo: check if post have previous cover photo , if any , delete it from s3
+      const filename: string = file.originalname + Date.now();
+      await this.storageService.upload(filename, file.buffer, bucketName);
+      return this.prismaService.post.update({
+        data: {
+          cover_photo: `${process.env.MINIO_S3_URL}/${bucketName}/${filename}`,
+        },
+        where: {
+          id: postId,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
 
   remove(id: number) {
     return `This action removes a #${id} post`;
@@ -108,6 +141,25 @@ export class PostsService {
 
   async reactOnPost(reaction_id: number, post_id: string, user_id: string) {
     try {
+      const existingReaction =
+        await this.prismaService.reactionsOnPosts.findFirst({
+          where: {
+            postId: post_id,
+            userId: user_id,
+            reactionId: reaction_id,
+          },
+        });
+      if (existingReaction) {
+        await this.prismaService.reactionsOnPosts.delete({
+          where: {
+            postId_reactionId_userId: {
+              postId: post_id,
+              userId: user_id,
+              reactionId: existingReaction.reactionId,
+            },
+          },
+        });
+      }
       return this.prismaService.post.update({
         data: {
           reaction: {
@@ -141,6 +193,5 @@ export class PostsService {
     } catch (e) {
       console.error(e);
     }
-
   }
 }
