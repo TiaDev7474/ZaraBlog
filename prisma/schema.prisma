@@ -11,24 +11,69 @@ datasource db {
 }
 
 model User {
-  id        String    @id
-  firstname String?   @db.VarChar(250)
-  lastname  String?   @db.VarChar(250)
-  email     String    @unique @db.VarChar(250)
-  password  String?
-  birthdate DateTime?
-  bio       String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  role      Role      @default(USER)
-  avatar    Avatar[]
-  posts     Post[]
-
+  id               String             @id
+  firstname        String?            @db.VarChar(250)
+  lastname         String?            @db.VarChar(250)
+  email            String             @unique @db.VarChar(250)
+  password         String?
+  birthdate        DateTime?
+  bio              String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  roles            RolesOnUsers[]
+  avatar           Avatar[]
+  posts            Post[]
   providerId       String?            @unique
   providerName     String?
-  ReactionsOnPosts ReactionsOnPosts[]
+  reactionsOnPosts ReactionsOnPosts[]
 
   @@map("users")
+}
+
+model Role {
+  id          Int            @id @default(autoincrement())
+  title       String
+  users       RolesOnUsers[]
+  createdAT   DateTime       @default(now())
+  updateAt    DateTime       @updatedAt
+  permissions Permission[]
+
+  @@map("roles")
+}
+
+model RolesOnUsers {
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+  role_id Int
+  role    Role   @relation(fields: [role_id], references: [id])
+
+  @@id([user_id, role_id])
+}
+
+model Permission {
+  id                     Int                      @id @default(autoincrement())
+  table_name             String
+  role_id                Int
+  role                   Role                     @relation(fields: [role_id], references: [id])
+  privilege              Privilege[]
+  privilegesOnPermission PrivilegesOnPermission[]
+}
+
+model Privilege {
+  id                     Int                      @id @default(autoincrement())
+  title                  String
+  Permission             Permission?              @relation(fields: [permissionId], references: [id])
+  permissionId           Int?
+  privilegesOnPermission PrivilegesOnPermission[]
+}
+
+model PrivilegesOnPermission {
+  privilege_id  Int
+  privilege     Privilege  @relation(fields: [privilege_id], references: [id])
+  permission_id Int
+  permission    Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([privilege_id, permission_id])
 }
 
 model Avatar {
@@ -50,8 +95,8 @@ model Post {
   title       String
   content     String
   cover_photo String?
-  authorId    String
   category    CategoriesOnPosts[]
+  authorId    String
   author      User                @relation(fields: [authorId], references: [id])
   reaction    ReactionsOnPosts[]
   tag         TagsOnPosts[]
@@ -106,12 +151,6 @@ model CategoriesOnPosts {
   post       Post     @relation(fields: [postId], references: [id])
 
   @@id([postId, categoryId])
-}
-
-enum Role {
-  USER
-  ADMIN
-  MODERATOR
 }
 
 enum ReactionEnum {
