@@ -15,7 +15,43 @@ async function main() {
       lastname: 'Nomenjanahary',
       password: hashedPassword,
       birthdate: new Date().toISOString(),
-      role: 'ADMIN',
+      roles: {
+        create: [
+          {
+            role: {
+              connectOrCreate: {
+                where: {
+                  id: 1,
+                },
+                create: {
+                  id: 1,
+                  title: 'Admin',
+                },
+              },
+            },
+          },
+          {
+            role: {
+              connectOrCreate: {
+                where: {
+                  id: 2,
+                },
+                create: {
+                  id: 2,
+                  title: 'Moderator',
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+    include: {
+      roles: {
+        include: {
+          role: true,
+        },
+      },
     },
   });
   const adminPostId = uuidv4();
@@ -110,7 +146,7 @@ async function main() {
     },
   });
 
-  console.log(adminUser, adminPost.reaction);
+  console.log(adminUser.roles, adminPost.reaction);
 }
 
 main()
