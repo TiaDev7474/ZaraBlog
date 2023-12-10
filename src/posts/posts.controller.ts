@@ -65,6 +65,15 @@ export class PostsController {
   }
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+    return this.postsService.remove(id);
+  }
+  @Patch(':id/review')
+  reviewOnPost(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Body('weight') weight: number,
+  ) {
+    console.log(user);
+    return this.postsService.reviewOnPost(user.sub, id, Number(weight));
   }
 }

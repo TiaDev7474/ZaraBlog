@@ -1,11 +1,10 @@
-import { Injectable} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { StorageService } from '../storage/storage.service';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import * as process from 'process';
-
 
 const bucketName = 'zarablogbucket';
 @Injectable()
@@ -83,6 +82,7 @@ export class PostsService {
           },
         },
         reaction: true,
+        review: true,
       },
     });
   }
@@ -125,37 +125,43 @@ export class PostsService {
     }
   }
 
-
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  remove(id: string) {
+    try {
+      return this.prismaService.post.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  async createCategoriesOnPosts(post_id: string, catergory_id: number) {
+  async createCategoriesOnPosts(post_id: string, category_id: number) {
     return this.prismaService.categoriesOnPosts.create({
       data: {
-        categoryId: catergory_id,
-        postId: post_id,
+        category_id: category_id,
+        post_id: post_id,
       },
     });
   }
-
   async reactOnPost(reaction_id: number, post_id: string, user_id: string) {
     try {
       const existingReaction =
         await this.prismaService.reactionsOnPosts.findFirst({
           where: {
-            postId: post_id,
-            userId: user_id,
-            reactionId: reaction_id,
+            post_id: post_id,
+            user_id: user_id,
           },
         });
+      console.log(existingReaction);
       if (existingReaction) {
-        await this.prismaService.reactionsOnPosts.delete({
+        return await this.prismaService.reactionsOnPosts.delete({
           where: {
-            postId_reactionId_userId: {
-              postId: post_id,
-              userId: user_id,
-              reactionId: existingReaction.reactionId,
+            post_id_reaction_id_user_id: {
+              post_id: post_id,
+              user_id: user_id,
+              reaction_id: existingReaction.reaction_id,
             },
           },
         });
@@ -188,6 +194,60 @@ export class PostsService {
           reaction: true,
           category: true,
           tag: true,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async reviewOnPost(reviewerId: string, postId: string, weight: number) {
+    try {
+      const post = await this.prismaService.post.findUnique({
+        where: {
+          id: postId,
+        },
+        include: {
+          review: true,
+        },
+      });
+      if (!post) {
+        //todo: implement normalize error
+        return new NotFoundException('Post not found');
+      }
+      const existingUserReviewOnPost = post.review.filter(
+        (review) => review.reviewer_id === reviewerId,
+      );
+      console.log(reviewerId);
+      console.log(existingUserReviewOnPost.length);
+      if (existingUserReviewOnPost.length == 0) {
+        console.log('here');
+        return await this.prismaService.review.create({
+          data: {
+            reviewer: {
+              connect: {
+                id: reviewerId,
+              },
+            },
+            post: {
+              connect: {
+                id: postId,
+              },
+            },
+            weight: weight,
+          },
+          include: {
+            reviewer: true,
+            post: true,
+          },
+        });
+      }
+      return await this.prismaService.review.update({
+        data: {
+          weight: weight,
+        },
+        where: {
+          id: existingUserReviewOnPost[0].id,
         },
       });
     } catch (e) {
