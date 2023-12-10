@@ -23,9 +23,10 @@ model User {
   roles            RolesOnUsers[]
   avatar           Avatar[]
   posts            Post[]
-  providerId       String?            @unique
+  provider_id      String?            @unique
   providerName     String?
   reactionsOnPosts ReactionsOnPosts[]
+  reviews          Review[]
 
   @@map("users")
 }
@@ -34,7 +35,7 @@ model Role {
   id          Int            @id @default(autoincrement())
   title       String
   users       RolesOnUsers[]
-  createdAT   DateTime       @default(now())
+  createdAt   DateTime       @default(now())
   updateAt    DateTime       @updatedAt
   permissions Permission[]
 
@@ -55,15 +56,12 @@ model Permission {
   table_name             String
   role_id                Int
   role                   Role                     @relation(fields: [role_id], references: [id])
-  privilege              Privilege[]
   privilegesOnPermission PrivilegesOnPermission[]
 }
 
 model Privilege {
   id                     Int                      @id @default(autoincrement())
   title                  String
-  Permission             Permission?              @relation(fields: [permissionId], references: [id])
-  permissionId           Int?
   privilegesOnPermission PrivilegesOnPermission[]
 }
 
@@ -87,6 +85,19 @@ model Avatar {
   @@map("avatars")
 }
 
+model Review {
+  id          Int      @id @default(autoincrement())
+  weight      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  post_id     String
+  post        Post     @relation(fields: [post_id], references: [id])
+  reviewer_id String
+  reviewer    User     @relation(fields: [reviewer_id], references: [id])
+
+  @@map("reviews")
+}
+
 model Post {
   id          String              @id
   createdAt   DateTime            @default(now())
@@ -96,10 +107,11 @@ model Post {
   content     String
   cover_photo String?
   category    CategoriesOnPosts[]
-  authorId    String
-  author      User                @relation(fields: [authorId], references: [id])
+  author_id   String
+  author      User                @relation(fields: [author_id], references: [id])
   reaction    ReactionsOnPosts[]
   tag         TagsOnPosts[]
+  review      Review[]
 
   @@map("posts")
 }
@@ -114,7 +126,7 @@ model Category {
 
 model Tag {
   id          Int           @id @default(autoincrement())
-  designation String
+  designation String        @unique
   post        TagsOnPosts[]
 }
 
@@ -125,14 +137,14 @@ model Reaction {
 }
 
 model ReactionsOnPosts {
-  postId     String
-  reactionId Int
-  post       Post     @relation(fields: [postId], references: [id])
-  reaction   Reaction @relation(fields: [reactionId], references: [id])
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  post_id     String
+  reaction_id Int
+  post        Post     @relation(fields: [post_id], references: [id])
+  reaction    Reaction @relation(fields: [reaction_id], references: [id])
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
 
-  @@id([postId, reactionId, userId])
+  @@id([post_id, reaction_id, user_id])
 }
 
 model TagsOnPosts {
@@ -145,12 +157,12 @@ model TagsOnPosts {
 }
 
 model CategoriesOnPosts {
-  postId     String
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
-  post       Post     @relation(fields: [postId], references: [id])
+  post_id     String
+  category_id Int
+  category    Category @relation(fields: [category_id], references: [id])
+  post        Post     @relation(fields: [post_id], references: [id])
 
-  @@id([postId, categoryId])
+  @@id([post_id, category_id])
 }
 
 enum ReactionEnum {

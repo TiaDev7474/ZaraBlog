@@ -3,8 +3,10 @@ import * as process from 'process';
 import * as argon2 from 'argon2';
 const prisma = new PrismaClient();
 import { v4 as uuidv4 } from 'uuid';
+import { blogCategories, blogTags, privileges } from './data';
 async function main() {
   const hashedPassword = await argon2.hash('admin-password');
+  const demoUserPassword = await argon2.hash('demo-password');
   const adminUser = await prisma.user.upsert({
     where: { email: 'untitledteam.pro@gmail.com' },
     update: {},
@@ -54,6 +56,43 @@ async function main() {
       },
     },
   });
+  const demoUser = await prisma.user.upsert({
+    where: { email: 'demouser@gmail.com' },
+    update: {},
+    create: {
+      id: uuidv4(),
+      email: 'demouser@gmail.com',
+      firstname: 'Demo',
+      lastname: 'User',
+      password: demoUserPassword,
+      birthdate: new Date().toISOString(),
+      roles: {
+        create: [
+          {
+            role: {
+              connectOrCreate: {
+                where: {
+                  id: 3,
+                },
+                create: {
+                  id: 3,
+                  title: 'end-user',
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+    include: {
+      roles: {
+        include: {
+          role: true,
+        },
+      },
+    },
+  });
+
   const adminPostId = uuidv4();
   const adminPost = await prisma.post.create({
     data: {
@@ -143,10 +182,46 @@ async function main() {
           },
         },
       },
+      review: true,
     },
   });
+  const category = await prisma.category.createMany({
+    data: blogCategories.map((category) => ({ name: category })),
+    skipDuplicates: true,
+  });
 
-  console.log(adminUser.roles, adminPost.reaction);
+  const normalizeTags = blogTags.map((tag) =>
+    tag.replace(/\s/g, '').toLowerCase(),
+  );
+
+  const tags = await prisma.tag.createMany({
+    data: normalizeTags.map((tag) => ({ designation: tag })),
+    skipDuplicates: true,
+  });
+  const privilege = await prisma.privilege.createMany({
+    data: privileges.map((privilege) => ({ title: privilege })),
+    skipDuplicates: true,
+  });
+  const reviews = await prisma.review.create({
+    data: {
+      post_id: adminPost.id,
+      reviewer_id: demoUser.id,
+      weight: 3.5,
+    },
+    include: {
+      reviewer: true,
+      post: true,
+    },
+  });
+  console.log(adminUser.roles, category, tags, privilege, reviews);
+  console.log(
+    '/*================Demo user ===============================*/\n',
+    demoUser,
+  );
+  console.log(
+    '/*================ Admin post  ===============================*/\n',
+    adminPost,
+  );
 }
 
 main()
