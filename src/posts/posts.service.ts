@@ -218,40 +218,82 @@ export class PostsService {
       const existingUserReviewOnPost = post.review.filter(
         (review) => review.reviewer_id === reviewerId,
       );
-      console.log(reviewerId);
-      console.log(existingUserReviewOnPost.length);
       if (existingUserReviewOnPost.length == 0) {
-        console.log('here');
-        return await this.prismaService.review.create({
-          data: {
-            reviewer: {
-              connect: {
-                id: reviewerId,
-              },
-            },
-            post: {
-              connect: {
-                id: postId,
-              },
-            },
-            weight: weight,
-          },
-          include: {
-            reviewer: true,
-            post: true,
-          },
-        });
+        await this.createUserReviewOnPost(reviewerId, postId, weight);
+      } else {
+        await this.updateReviewOfUserOnPost(
+          existingUserReviewOnPost[0].id,
+          weight,
+        );
       }
-      return await this.prismaService.review.update({
+      const postReviews = await this.prismaService.review.findMany({
+        where: {
+          post_id: postId,
+        },
+      });
+      const numbersOfReviews = postReviews.length;
+      const arrayOfReviewWeight = postReviews.map((review) => review.weight);
+      const reviewAverage = await this.calculateReviewAverage(
+        arrayOfReviewWeight,
+        numbersOfReviews,
+      );
+      console.log(reviewAverage);
+      return await this.prismaService.post.update({
         data: {
-          weight: weight,
+          review_average: reviewAverage,
         },
         where: {
-          id: existingUserReviewOnPost[0].id,
+          id: postId,
         },
       });
     } catch (e) {
       console.error(e);
     }
+  }
+
+  async calculateReviewAverage(
+    arrayOfReviewWeights: number[],
+    numbersOfReviews: number,
+  ) {
+    const totalReviewWeight = arrayOfReviewWeights.reduce(
+      (totalReview, currentReview) => totalReview + currentReview,
+    );
+    console.log('totalReviewWeight :', totalReviewWeight);
+    console.log('numbersOfReviews', numbersOfReviews);
+    if (totalReviewWeight <= 0) {
+      return 0;
+    }
+    return totalReviewWeight / numbersOfReviews;
+  }
+  async updateReviewOfUserOnPost(reviewId: number, weight: number) {
+    return this.prismaService.review.update({
+      data: {
+        weight: weight,
+      },
+      where: {
+        id: reviewId,
+      },
+    });
+  }
+  async createUserReviewOnPost(
+    reviewerId: string,
+    postId: string,
+    weight: number,
+  ) {
+    return this.prismaService.review.create({
+      data: {
+        reviewer: {
+          connect: {
+            id: reviewerId,
+          },
+        },
+        post: {
+          connect: {
+            id: postId,
+          },
+        },
+        weight: weight,
+      },
+    });
   }
 }
