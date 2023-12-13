@@ -87,7 +87,7 @@ model Avatar {
 
 model Review {
   id          Int      @id @default(autoincrement())
-  weight      Int
+  weight      Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   post_id     String
@@ -99,19 +99,20 @@ model Review {
 }
 
 model Post {
-  id          String              @id
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  read_time   Int
-  title       String
-  content     String
-  cover_photo String?
-  category    CategoriesOnPosts[]
-  author_id   String
-  author      User                @relation(fields: [author_id], references: [id])
-  reaction    ReactionsOnPosts[]
-  tag         TagsOnPosts[]
-  review      Review[]
+  id             String              @id
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  read_time      Int
+  title          String
+  content        String
+  cover_photo    String?
+  category       CategoriesOnPosts[]
+  author_id      String
+  author         User                @relation(fields: [author_id], references: [id])
+  reaction       ReactionsOnPosts[]
+  tag            TagsOnPosts[]
+  review         Review[]
+  review_average Float               @default(0)
 
   @@map("posts")
 }
