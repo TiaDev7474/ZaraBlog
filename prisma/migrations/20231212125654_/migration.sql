@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "posts" ALTER COLUMN "review_average" SET DEFAULT 0,
+ALTER COLUMN "review_average" SET DATA TYPE DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "reviews" ALTER COLUMN "weight" SET DATA TYPE DOUBLE PRECISION;
