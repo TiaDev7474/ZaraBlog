@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { StorageService } from '../storage/storage.service';
@@ -66,25 +66,93 @@ export class PostsService {
     }
   }
 
-  findAll(skip?: number, take?: number) {
-    return this.prismaService.post.findMany({
-      skip,
-      take,
-      include: {
-        category: {
-          include: {
-            category: true,
+  async findAll(current_page: number, per_page: number, filter_by: string) {
+    try {
+      const skip = current_page * per_page;
+      const take = Number(per_page);
+      const filter = filter_by == 'all' ? undefined : filter_by;
+      return await this.prismaService.post.findMany({
+        skip,
+        take,
+        where: {
+          category: {
+            some: {
+              category: {
+                name: filter,
+              },
+            },
           },
         },
-        tag: {
-          include: {
-            tag: true,
+        include: {
+          category: {
+            include: {
+              category: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          tag: {
+            include: {
+              tag: {
+                select: {
+                  designation: true,
+                  id: true,
+                },
+              },
+            },
+          },
+          reaction: {
+            include: {
+              reaction: {
+                select: {
+                  type: true,
+                },
+              },
+            },
+          },
+          review: {
+            select: {
+              weight: true,
+              reviewer_id: true,
+              id: true,
+            },
+          },
+          author: {
+            select: {
+              id: true,
+              firstname: true,
+              lastname: true,
+              avatar: {
+                select: {
+                  path: true,
+                },
+              },
+            },
           },
         },
-        reaction: true,
-        review: true,
-      },
-    });
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException(
+        'An error occurred while processing your request.',
+      );
+    }
+  }
+
+  //todo: move to category module later
+  async findAllCategories() {
+    try {
+      return await this.prismaService.category.findMany();
+    } catch (e) {
+      throw new InternalServerErrorException(
+        'An error occurred while processing your request.',
+      );
+    }
   }
 
   findOne(id: number) {

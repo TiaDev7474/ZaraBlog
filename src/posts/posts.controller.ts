@@ -15,6 +15,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUser } from '../lib/decorator/user.decorator';
+import { SkipAuth } from '../lib/decorator/auth.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -29,10 +30,27 @@ export class PostsController {
   ) {
     return this.postsService.create(banner_image, createPostDto, user);
   }
+
+  @SkipAuth()
   @Get()
-  findAll(@Query('skip') skip: number, @Query('take') take: number) {
-    return this.postsService.findAll(skip, take);
+  findAll(
+    @Query('filter') filter_by: string,
+    @Query('current_page') current_page: string,
+    @Query('per_page') per_page: string,
+  ) {
+    console.log(typeof per_page, typeof current_page);
+    return this.postsService.findAll(
+      Number(current_page),
+      Number(per_page),
+      filter_by,
+    );
   }
+  @SkipAuth()
+  @Get('/category')
+  findAllCategories() {
+    return this.postsService.findAllCategories();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(+id);
@@ -76,4 +94,5 @@ export class PostsController {
     console.log(user);
     return this.postsService.reviewOnPost(user.sub, id, Number(weight));
   }
+
 }
