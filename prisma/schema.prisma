@@ -11,22 +11,23 @@ datasource db {
 }
 
 model User {
-  id               String             @id
-  firstname        String?            @db.VarChar(250)
-  lastname         String?            @db.VarChar(250)
-  email            String             @unique @db.VarChar(250)
+  id               String              @id
+  firstname        String?             @db.VarChar(250)
+  lastname         String?             @db.VarChar(250)
+  email            String              @unique @db.VarChar(250)
   password         String?
   birthdate        DateTime?
   bio              String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
   roles            RolesOnUsers[]
   avatar           Avatar[]
   posts            Post[]
-  provider_id      String?            @unique
+  provider_id      String?             @unique
   providerName     String?
   reactionsOnPosts ReactionsOnPosts[]
   reviews          Review[]
+  following_topics CategoriesOnUsers[]
 
   @@map("users")
 }
@@ -57,6 +58,8 @@ model Permission {
   role_id                Int
   role                   Role                     @relation(fields: [role_id], references: [id])
   privilegesOnPermission PrivilegesOnPermission[]
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
 }
 
 model Privilege {
@@ -118,11 +121,23 @@ model Post {
 }
 
 model Category {
-  id   Int                 @id @default(autoincrement())
-  name String
-  post CategoriesOnPosts[]
+  id         Int                 @id @default(autoincrement())
+  name       String
+  post       CategoriesOnPosts[]
+  followedBy CategoriesOnUsers[]
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
 
   @@map("categories")
+}
+
+model CategoriesOnUsers {
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     String
+  Category    Category @relation(fields: [category_id], references: [id])
+  category_id Int
+
+  @@id([user_id, category_id])
 }
 
 model Tag {
@@ -132,9 +147,11 @@ model Tag {
 }
 
 model Reaction {
-  id   Int                @id
-  type ReactionEnum
-  post ReactionsOnPosts[]
+  id        Int                @id
+  type      ReactionEnum
+  post      ReactionsOnPosts[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
 }
 
 model ReactionsOnPosts {

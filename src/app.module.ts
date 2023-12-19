@@ -18,6 +18,7 @@ import { TaskSchedule } from './schedule/task.schedule';
 import { OauthModule } from './oauth/oauth.module';
 import { EventsModule } from './events/events.module';
 import { PostsModule } from './posts/posts.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   providers: [
@@ -40,6 +41,7 @@ import { PostsModule } from './posts/posts.module';
     OauthModule,
     EventsModule,
     PostsModule,
+    TagsModule,
   ],
 })
 export class AppModule implements NestModule {
