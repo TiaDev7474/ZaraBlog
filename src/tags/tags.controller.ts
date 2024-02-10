@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TagsService } from './tags.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import { SkipAuth } from '../lib/decorator/auth.decorator';
 
 @Controller('tags')
 export class TagsController {
@@ -12,9 +13,11 @@ export class TagsController {
     return this.tagsService.create(createTagDto);
   }
 
+
   @Get()
-  findAll() {
-    return this.tagsService.findAll();
+  @SkipAuth()
+  findAll(@Query('query') query: string) {
+    return this.tagsService.findAll(query);
   }
 
   @Get(':id')

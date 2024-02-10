@@ -31,8 +31,8 @@ export class PostsController {
     return this.postsService.create(banner_image, createPostDto, user);
   }
 
-  @SkipAuth()
   @Get()
+  @SkipAuth()
   findAll(
     @Query('filter') filter_by: string,
     @Query('current_page') current_page: string,
@@ -45,8 +45,9 @@ export class PostsController {
       filter_by,
     );
   }
-  @SkipAuth()
+
   @Get('/category')
+  @SkipAuth()
   findAllCategories() {
     return this.postsService.findAllCategories();
   }

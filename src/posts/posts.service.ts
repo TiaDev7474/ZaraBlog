@@ -78,7 +78,7 @@ export class PostsService {
           category: {
             some: {
               category: {
-                name: filter,
+                designation: filter,
               },
             },
           },
@@ -88,7 +88,7 @@ export class PostsService {
             include: {
               category: {
                 select: {
-                  name: true,
+                  designation: true,
                 },
               },
             },

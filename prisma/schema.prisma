@@ -121,12 +121,12 @@ model Post {
 }
 
 model Category {
-  id         Int                 @id @default(autoincrement())
-  name       String
-  post       CategoriesOnPosts[]
-  followedBy CategoriesOnUsers[]
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
+  id          Int                 @id @default(autoincrement())
+  designation String
+  post        CategoriesOnPosts[]
+  followedBy  CategoriesOnUsers[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 
   @@map("categories")
 }

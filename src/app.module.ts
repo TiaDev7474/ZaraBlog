@@ -19,6 +19,7 @@ import { OauthModule } from './oauth/oauth.module';
 import { EventsModule } from './events/events.module';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   providers: [
@@ -42,6 +43,7 @@ import { TagsModule } from './tags/tags.module';
     EventsModule,
     PostsModule,
     TagsModule,
+    CategoryModule,
   ],
 })
 export class AppModule implements NestModule {

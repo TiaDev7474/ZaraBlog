@@ -109,7 +109,7 @@ async function main() {
                 where: { id: 1 },
                 create: {
                   id: 1,
-                  name: 'Technologies',
+                  designation: 'Technologies',
                 },
               },
             },
@@ -186,7 +186,9 @@ async function main() {
     },
   });
   const category = await prisma.category.createMany({
-    data: blogCategories.map((category) => ({ name: category })),
+    data: blogCategories.map((category) => ({
+      designation: category.split(' ').join('-').toLowerCase(),
+    })),
     skipDuplicates: true,
   });
 

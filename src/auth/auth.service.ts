@@ -46,7 +46,6 @@ export class AuthService {
   async signIn(signInDto: LoginDto) {
     try {
       const foundUser = await this.findUserByEmail(signInDto.email);
-
       if (!foundUser) {
         return new NotFoundException('User Not found');
       }
@@ -58,8 +57,21 @@ export class AuthService {
         return new ForbiddenException(FORBIDDEN_MESSAGE);
       }
       const payload = { sub: foundUser.id, email: foundUser.email };
-      return {
+      console.log({
+        id: foundUser.id,
+        email: foundUser.email,
+        firstname: foundUser.firstname,
+        lastname: foundUser.lastname,
         access_token: await this.jwtService.signAsync(payload),
+      });
+      return {
+        user: {
+          id: foundUser.id,
+          email: foundUser.email,
+          firstname: foundUser.firstname,
+          lastname: foundUser.lastname,
+          access_token: await this.jwtService.signAsync(payload),
+        },
       };
     } catch (e) {
       //Todo: Handle error exception
